@@ -6,10 +6,10 @@ Docs: <https://rennf93.github.io/fiber-guard/>
 
 ## Install
 
-Released: `v1.1.0` on the Go module proxy. The engine stays pinned to the `guard-core-go` master pseudo-version below until the synchronized 4.2.0 train retags it:
+Released: `v1.2.0` on the Go module proxy, flooring the guard-core-go v4.2.0 parity engine:
 
 ```
-go get github.com/rennf93/fiber-guard@v1.1.0 github.com/rennf93/guard-core-go/v4@v4.0.5-0.20260926230539-e39ac203568b
+go get github.com/rennf93/fiber-guard@v1.2.0 github.com/rennf93/guard-core-go/v4@v4.2.0
 ```
 
 The package name is `fiber`, which collides with `github.com/gofiber/fiber/v3` (also package `fiber`), so import the adapter with an explicit alias such as `guardfiber`.

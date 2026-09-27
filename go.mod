@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/gofiber/fiber/v3 v3.5.0
-	github.com/rennf93/guard-core-go/v4 v4.0.5-0.20260927055209-5798f2a4ce52
+	github.com/rennf93/guard-core-go/v4 v4.2.0
 	github.com/valyala/fasthttp v1.74.0
 )
 
