@@ -6,7 +6,7 @@ Docs: <https://rennf93.github.io/fiber-guard/>
 
 ## Install
 
-The adapter has no release tag yet; pin a commit (or track `main`) until the first tag is published:
+Released: `v1.1.0` on the Go module proxy. The engine stays pinned to the `guard-core-go` master pseudo-version below until the synchronized 4.2.0 train retags it:
 
 ```
 go get github.com/rennf93/fiber-guard@v1.1.0 github.com/rennf93/guard-core-go/v4@v4.0.5-0.20260926230539-e39ac203568b
