@@ -15,9 +15,9 @@ fiber-guard is a Fiber middleware adapter for [guard-core-go](https://github.com
 This repo is the ADAPTER layer of the guard-core ecosystem:
 
 - `guard-core-go` is the engine. All detection (suspicious activity, IP bans, rate limits, HTTPS enforcement), verdict construction, and error response factories live there.
-- This repo wires Go Fiber types to that engine and nothing more. It consumes `github.com/rennf93/guard-core-go/v4 v4.0.4` as a normal module dependency (see `go.mod`); no `replace` directive is used or needed. For cross-repo work on the core, add a temporary local `replace` in your own checkout and drop it before committing.
+- This repo wires Go Fiber types to that engine and nothing more. It consumes `github.com/rennf93/guard-core-go/v4 v4.0.5-0.20260926230539-e39ac203568b` as a normal module dependency (see `go.mod`); no `replace` directive is used or needed. For cross-repo work on the core, add a temporary local `replace` in your own checkout and drop it before committing.
 - Because the middleware is a `fiber.Handler`, it composes with `app.Use` and runs anywhere in a Fiber handler chain.
-- Direct dependencies: `github.com/gofiber/fiber/v3 v3.5.0` (the framework this adapter exists for; a framework import is allowed here, unlike in the core), `github.com/valyala/fasthttp v1.73.0` (Fiber's own engine; the shim uses fasthttp primitives directly where Fiber's accessors are config-dependent, see Boundary Rules), and `github.com/rennf93/guard-core-go/v4 v4.0.4`. Notable indirect floors: `golang.org/x/crypto v0.55.0` (explicitly bumped for GO-2026-6303; fiber v3.5.0 pulled v0.54.0, and the SSH DoS fixes in v0.56.0 require a go 1.26 directive, so v0.55.0 is the highest floor compatible with `go 1.25.0`), plus the core's transitives (`redis/go-redis/v9 v9.22.0`, `dlclark/regexp2 v1.12.0`, `go.uber.org/atomic`, `golang.org/x/text v0.41.0`).
+- Direct dependencies: `github.com/gofiber/fiber/v3 v3.5.0` (the framework this adapter exists for; a framework import is allowed here, unlike in the core), `github.com/valyala/fasthttp v1.73.0` (Fiber's own engine; the shim uses fasthttp primitives directly where Fiber's accessors are config-dependent, see Boundary Rules), and `github.com/rennf93/guard-core-go/v4 v4.0.5-0.20260926230539-e39ac203568b`. Notable indirect floors: `golang.org/x/crypto v0.55.0` (explicitly bumped for GO-2026-6303; fiber v3.5.0 pulled v0.54.0, and the SSH DoS fixes in v0.56.0 require a go 1.26 directive, so v0.55.0 is the highest floor compatible with `go 1.25.0`), plus the core's transitives (`redis/go-redis/v9 v9.22.0`, `dlclark/regexp2 v1.12.0`, `go.uber.org/atomic`, `golang.org/x/text v0.41.0`).
 
 ## Boundary Rules
 
@@ -97,7 +97,7 @@ CI runs the test job on a Go matrix of `1.25.x` and `1.26.x` (fail-fast disabled
 ├── request.go           # requestShim (implements guardcore.Request), WithRouteID, DefaultMaxBodyBytes
 ├── middleware_test.go   # unit tests, real fiber app, Redis disabled
 ├── integration_test.go  # //go:build integration, Redis-backed, skips when REDIS_HOST is unset
-├── go.mod / go.sum      # module github.com/rennf93/fiber-guard, requires fiber/v3 v3.5.0 and guard-core-go/v4 v4.0.4
+├── go.mod / go.sum      # module github.com/rennf93/fiber-guard, requires fiber/v3 v3.5.0 and guard-core-go/v4 v4.0.5-0.20260926230539-e39ac203568b
 ├── README.md            # usage, options, fasthttp semantics, integration test instructions
 ├── LICENSE              # MIT
 ├── examples/            # example apps inside the root module (see examples/*/README.md)
@@ -128,7 +128,7 @@ CI runs the test job on a Go matrix of `1.25.x` and `1.26.x` (fail-fast disabled
 ## Technology Stack
 
 - Go, directive `go 1.25.0`; CI matrix tests 1.25.x and 1.26.x.
-- `github.com/rennf93/guard-core-go/v4 v4.0.4` (direct require in `go.mod`), providing `guardcore.Engine`, `guardcore.Request`, `guardcore.Response`, `guardcore.SecurityConfig`.
+- `github.com/rennf93/guard-core-go/v4 v4.0.5-0.20260926230539-e39ac203568b` (direct require in `go.mod`), providing `guardcore.Engine`, `guardcore.Request`, `guardcore.Response`, `guardcore.SecurityConfig`.
 - `github.com/gofiber/fiber/v3 v3.5.0` (direct require in `go.mod`), providing `fiber.Handler`, `fiber.Ctx`, and `fiber.App` for the bridging surface.
 - `github.com/valyala/fasthttp v1.73.0` (direct require in `go.mod`): Fiber's underlying engine. Its types already appear in Fiber's public API (`Ctx.RequestCtx()` returns `*fasthttp.RequestCtx`); the shim imports it for the deterministic primitives (`RemoteIP`, `IsTLS`, `Request.Header.All()`, `QueryArgs().VisitAll()`).
 - Redis 7 for integration tests (CI service container `redis:7-alpine`); runtime Redis usage is a guard-core-go concern, not this adapter's.
