@@ -516,8 +516,14 @@ func TestMiddlewarePassiveModePassesThrough(t *testing.T) {
 	if resp.StatusCode() != 200 || !p.called {
 		t.Fatalf("passive mode must pass through detection, got %d called=%v", resp.StatusCode(), p.called)
 	}
-	if len(hookPayloads) != 1 || hookPayloads[0]["passive_mode"] != true || hookPayloads[0]["check_name"] != "suspicious_activity" {
-		t.Fatalf("passive block hook must fire once with passive payload, got %v", hookPayloads)
+	if len(hookPayloads) != 2 {
+		t.Fatalf("passive mode must fire the on_block hook per corpus: ip_security for the banned pass-through, then suspicious_activity for detection, got %v", hookPayloads)
+	}
+	if hookPayloads[0]["check_name"] != "ip_security" || hookPayloads[0]["passive_mode"] != true {
+		t.Fatalf("banned-IP pass-through must fire the ip_security hook with passive_mode true, got %v", hookPayloads[0])
+	}
+	if hookPayloads[1]["check_name"] != "suspicious_activity" || hookPayloads[1]["passive_mode"] != true {
+		t.Fatalf("detection pass-through must fire the suspicious_activity hook with passive_mode true, got %v", hookPayloads[1])
 	}
 }
 
