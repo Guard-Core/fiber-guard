@@ -72,3 +72,76 @@ from forwarded headers:
 cfg.TrustedProxies = []string{"172.16.0.0/12", "10.0.0.0/8"}
 cfg.TrustedProxyDepth = 1
 ```
+
+## Behavior rules
+
+The engine's behavioral surface is configurable through the global fields:
+
+```go
+cfg.GlobalBehaviorRules = []guardcore.BehaviorRuleConfig{
+    {RuleType: "usage", Threshold: 100, Window: 3600, Action: "ban"},
+}
+cfg.BehaviorScanResponseBody = true
+cfg.BehaviorMaxResponseBodyInspectBytes = 262144
+```
+
+`BehaviorScanResponseBody` gates return-pattern rules that read the response
+body (`regex:`, `json:`, or bare substring patterns; `status:` patterns work
+without it). With the flag on, the adapter captures the leading
+`BehaviorMaxResponseBodyInspectBytes` of Fiber's buffered response body and
+reports status code plus captured prefix to `Engine.ProcessResponse` after
+your handler runs, mirroring the reference response factory's behavioral
+phase. Return rules never modify the response. Note: Fiber buffers the response, so every handler response is observed; no
+framework limitation applies.
+
+## Geo lifecycle
+
+Country rules resolve through the engine's geo lifecycle. A token enables the
+full IPInfo download/refresh lifecycle; a database path keeps local-file
+mode. `OnGeoEvent` receives `country_blocked`, `geo_lookup_failed`, and
+`decorator_violation` events:
+
+```go
+cfg.IPInfoToken = os.Getenv("IPINFO_TOKEN")
+cfg.IPInfoMaxAge = 86400 // 0 falls back to the reference default
+cfg.BlockedCountries = []string{"CN"}
+cfg.OnGeoEvent = func(ev guardcore.GeoEvent) { ... }
+```
+
+Route-level country rules (`RouteConfig.BlockedCountries` /
+`WhitelistCountries`) emit the same events through the same hook.
+
+## Per-route detection exclusions
+
+Route configuration lives in the engine registry and reaches the middleware
+through `guardfiber.WithRouteID` (see [Usage](usage.md)). Every
+`guardcore.RouteConfig` field is reachable, including the per-route detection
+exclusion surface:
+
+```go
+engine.Routes.Register("search", func(rc *guardcore.RouteConfig) {
+    rc.ExcludedDetectionParams = map[string]bool{"q": true}
+    rc.ExcludedDetectionHeaders = map[string]bool{"referer": true}
+    rc.ExcludedDetectionBodyFields = map[string]bool{"note": true}
+    rc.EnabledDetectionCategories = []string{"xss", "sqli"}
+    scanOff := false
+    rc.DetectionScanBody = &scanOff
+    rc.BehaviorRules = []guardcore.BehaviorRuleConfig{
+        {RuleType: "usage", Threshold: 10, Window: 60, Action: "ban"},
+    }
+})
+```
+
+## CORS
+
+Set `cfg.EnableCORS = true` (plus any `CORSAllowOrigins`, `CORSAllowMethods`,
+`CORSAllowHeaders`, `CORSAllowCredentials`, `CORSExposeHeaders`,
+`CORSMaxAge` tuning). Preflights are short-circuited by the engine through
+`guardfiber.New`, blocked responses carry the CORS headers over the
+security-header set, and the adapter merges
+`Engine.CORSResponseHeaders(req)` into every pass-through response.
+
+## Custom error bodies
+
+`cfg.CustomErrorResponses` replaces the body of any engine verdict status
+code; the status code and security headers stay engine-owned.

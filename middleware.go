@@ -60,11 +60,40 @@ func (m *middleware) wrap(c fiberlib.Ctx) error {
 	}
 	// Security headers on the pass-through path: the engine computes the
 	// set (blocked verdicts already carry it), the adapter applies it
-	// before the handler writes its response.
-	for name, value := range m.engine.ResponseHeaders() {
+	// before the handler writes its response. CORS response headers are
+	// merged on top (the reference _inject_cors_headers runs after the
+	// security-header set, so CORS wins on a shared name) whenever the
+	// request carries an Origin and CORS is enabled.
+	headers := m.engine.ResponseHeaders()
+	for name, value := range m.engine.CORSResponseHeaders(req) {
+		headers[name] = value
+	}
+	for name, value := range headers {
 		c.Set(name, value)
 	}
-	return c.Next()
+	err = c.Next()
+	// Behavioral return rules (route and global) run against the response
+	// the handler produced, exactly like the reference response factory's
+	// behavioral phase. Fiber buffers the response, so after the chain runs
+	// the adapter hands the engine the status and the leading response body
+	// bytes up to the configured inspect budget (return rules never modify
+	// the response).
+	var observedBody []byte
+	if m.engine.Config.BehaviorScanResponseBody {
+		if budget := m.engine.Config.BehaviorMaxResponseBodyInspectBytes; budget > 0 {
+			body := c.Response().Body()
+			if len(body) > budget {
+				body = body[:budget]
+			}
+			observedBody = body
+		}
+	}
+	m.engine.ProcessResponse(req, &guardcore.Response{
+		StatusCode: c.Response().StatusCode(),
+		Headers:    map[string]string{},
+		Body:       observedBody,
+	})
+	return err
 }
 
 func (m *middleware) check(req guardcore.Request) (verdict *guardcore.Response, err error) {
