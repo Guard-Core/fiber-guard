@@ -91,11 +91,11 @@ func (s *requestShim) Headers() guardcore.Headers {
 
 func (s *requestShim) QueryParams() map[string]string {
 	params := make(map[string]string)
-	s.c.RequestCtx().QueryArgs().VisitAll(func(key, value []byte) {
+	for key, value := range s.c.RequestCtx().QueryArgs().All() {
 		if _, ok := params[string(key)]; !ok {
 			params[string(key)] = string(value)
 		}
-	})
+	}
 	return params
 }
 

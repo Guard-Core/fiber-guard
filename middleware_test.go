@@ -66,10 +66,8 @@ func newReq(method, target, body string, headers map[string]string) *fasthttp.Re
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(target)
 	req.Header.SetMethod(method)
-	if headers != nil {
-		for name, value := range headers {
-			req.Header.Add(name, value)
-		}
+	for name, value := range headers {
+		req.Header.Add(name, value)
 	}
 	if len(body) > 0 {
 		req.SetBodyRaw([]byte(body))
