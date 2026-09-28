@@ -39,7 +39,7 @@ jobs:
           ref: master
           path: guard-core-go-upstream
 
-      # No host Go toolchain: run the adapter suite inside golang:1.25-alpine,
+      # No host Go toolchain: run the adapter suite inside golang:1.26-alpine,
       # pointing the guard-core-go dependency at upstream master.
       - name: Run the adapter test suite against guard-core-go@master
         run: |
@@ -47,7 +47,7 @@ jobs:
             -v "$PWD":/work -w /work \
             -e GOCACHE=/tmp/gocache \
             -e REDIS_HOST=127.0.0.1 \
-            golang:1.25-alpine sh -c '
+            golang:1.26-alpine sh -c '
               set -e
               go mod edit -replace github.com/rennf93/guard-core-go/v4=/work/guard-core-go-upstream
               go mod tidy
