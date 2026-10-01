@@ -3,6 +3,26 @@ Release Notes
 
 ___
 
+v1.3.0 (2026-10-01)
+-------------------
+
+guard-core-go v4.3.0 floor (the corpus-parity engine)
+-----------------------------------------------------
+
+### Changed
+
+- **Raised the engine floor to `github.com/rennf93/guard-core-go/v4 v4.3.0`, the corpus-parity release.** The v4.3.0 engine is validated against the full conformance corpus: the pattern_safety, events and redis_interop suite kinds now run against the real engine alongside detect and pipeline (fail-closed baselines), the spec 12 observable event stream is ported (security event bus, metrics collector, dynamic-rules agent pipeline, the emission fidelity wave that closes the events surface to reference parity at 32 of 38 cases), plus the detection performance monitor, the security-headers Redis cache with the cross-worker sync contract, and the manager-level geo country verdict (`GeoIPManager.CheckCountryAccess`). Everything flows to the adapter through the unchanged middleware surface: agent integrations receive the new event stream via the existing handler hooks, and the engine-level changes require no adapter code. The module's `go` directive follows the engine to 1.26.0 (the engine's toolchain floor); the adapter still compiles under the go 1.25/1.26 CI matrix via GOTOOLCHAIN=auto.
+- **The query-parameter shim iterates the fasthttp args iterator with a range over `All()`** instead of the callback-based `VisitAll` (the staticcheck cleanup ahead of the new staticcheck gate, #21); behavior is identical (first value wins per key).
+
+### Added
+
+- **A hard 100% coverage gate wired into CI** (#22): the adapter surface is fully covered (`coverage_test.go` drives the shim and middleware paths the pipeline exercises), and the gate (`check_coverage.sh`) fails closed on a missing or empty profile and refuses anything under 100% total.
+- **staticcheck joins the CI gates** (#21) with the findings fixed ahead of the gate.
+- **The upstream-drift suite runs on go 1.26** (#20) to match engine master's toolchain floor.
+- **The guard-core process baseline** (#21): hygiene files (SECURITY, CONTRIBUTING, Code of Conduct, funding, issue and PR templates), dependabot, the labeler and scheduled lint.
+
+___
+
 v1.2.0 (2026-09-27)
 -------------------
 
