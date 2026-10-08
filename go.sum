@@ -36,8 +36,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/redis/go-redis/v9 v9.22.0 h1:laDvpYXTJtZLloinw1fA5Kqd6HAEH2XKxOkG/PDq2F0=
 github.com/redis/go-redis/v9 v9.22.0/go.mod h1:y2g0Wj8rQvuK0ELM+oxSudcLtC09JScs98I/X9gRWY4=
-github.com/rennf93/guard-core-go/v4 v4.3.2-0.20261007214542-f0bb238e52f7 h1:yO6a1Cb4Gyxq6H3IwnheNRN28cydOqSnvq3223V3tIU=
-github.com/rennf93/guard-core-go/v4 v4.3.2-0.20261007214542-f0bb238e52f7/go.mod h1:ThG64TPXFAbFtoxKZyusi9k9ZNrj/BXR7Cr7fJmpdys=
+github.com/rennf93/guard-core-go/v4 v4.3.2-0.20261008041134-d630201abe44 h1:K7KYyNMZcnz/koeD4Q0MlQLdfZ2rHTH2NeY3yExE6io=
+github.com/rennf93/guard-core-go/v4 v4.3.2-0.20261008041134-d630201abe44/go.mod h1:ThG64TPXFAbFtoxKZyusi9k9ZNrj/BXR7Cr7fJmpdys=
 github.com/shamaton/msgpack/v3 v3.2.0 h1:1q2Ms+MWmuRju+PuDMSFDB7p7621npeX4zprJN5Zck8=
 github.com/shamaton/msgpack/v3 v3.2.0/go.mod h1:sgBYvEiyz8JR1NC3yGRoPVME9xXovpnh3l/plW1nfRo=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
