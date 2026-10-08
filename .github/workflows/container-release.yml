@@ -56,7 +56,7 @@ jobs:
 
       - name: Tag and push to GHCR
         run: |
-          IMAGE="ghcr.io/${{ github.repository_owner }}/fiber-guard-example"
+          IMAGE="ghcr.io/guard-core/fiber-guard-example"
           docker tag fiber-guard-advanced-app:local "${IMAGE}:latest"
           docker push "${IMAGE}:latest"
 

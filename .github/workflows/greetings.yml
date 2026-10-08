@@ -25,7 +25,7 @@ jobs:
             - Redis configuration if relevant (the engine uses Redis for distributed bans, rate limiting, and cloud IP ranges)
 
             A few pointers:
-            - Scan [README.md](../blob/master/README.md) for usage guidance, and [guard-core-go](https://github.com/rennf93/guard-core-go) for engine behavior and configuration.
+            - Scan [README.md](../blob/master/README.md) for usage guidance, and [guard-core-go](https://github.com/Guard-Core/guard-core-go) for engine behavior and configuration.
             - **Security vulnerability?** Do **not** open a public issue - please use GitHub's private vulnerability reporting.
 
             Thanks again - a maintainer will be with you soon.
@@ -40,7 +40,7 @@ jobs:
             - [ ] `go build ./...` compiles the adapter and the example apps
             - [ ] `govulncheck ./...` is clean
             - [ ] No `nolint` / unchecked-error shortcuts; pre-existing violations in touched files are fixed
-            - [ ] If you changed adapter behavior, it stays aligned with [gin-guard](https://github.com/rennf93/gin-guard) and [nethttp-guard](https://github.com/rennf93/nethttp-guard) and the README reflects it
+            - [ ] If you changed adapter behavior, it stays aligned with [gin-guard](https://github.com/Guard-Core/gin-guard) and [nethttp-guard](https://github.com/Guard-Core/nethttp-guard) and the README reflects it
 
             See [README.md](../blob/master/README.md) for the adapter contract and [AGENTS.md](../blob/master/AGENTS.md) for the boundary rules.
 
