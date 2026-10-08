@@ -2,7 +2,7 @@
 
 The adapter has exactly two options (`WithMaxBodyBytes`, `WithLogger`); all
 security tuning is engine configuration. See the
-[guard-core-go configuration reference](https://rennf93.github.io/guard-core-go/configuration/)
+[guard-core-go configuration reference](https://guard-core.github.io/guard-core-go/configuration/)
 for the full `SecurityConfig` surface.
 
 ## Minimal tuned setup

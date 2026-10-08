@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: Fiber Guard Documentation
-    url: https://rennf93.github.io/fiber-guard/
+    url: https://guard-core.github.io/fiber-guard/
     about: Check the documentation for usage information and tutorials
   - name: Usage Questions
-    url: https://github.com/rennf93/fiber-guard/discussions
+    url: https://github.com/Guard-Core/fiber-guard/discussions
     about: Please ask and answer questions in GitHub Discussions
   - name: Discord
     url: https://discord.gg/ZW7ZJbjMkK

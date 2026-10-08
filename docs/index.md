@@ -1,7 +1,7 @@
 # fiber-guard
 
 `fiber-guard` is the official Fiber v3 adapter for
-[guard-core-go](https://github.com/rennf93/guard-core-go), the Go port of the
+[guard-core-go](https://github.com/Guard-Core/guard-core-go), the Go port of the
 guard-core security engine. It wraps any Fiber app with the full engine
 pipeline: penetration detection, rate limiting, IP banning, and verdict
 responses.
@@ -73,5 +73,5 @@ func main() {
 - Fail-closed: engine panics become `500` with a fixed, non-leaky message
 
 See [Configuration](configuration.md) for engine tuning and the
-[examples](https://github.com/rennf93/fiber-guard/tree/master/examples) for
+[examples](https://github.com/Guard-Core/fiber-guard/tree/master/examples) for
 runnable apps.
