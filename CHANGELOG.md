@@ -3,6 +3,26 @@ Release Notes
 
 ___
 
+v1.4.0 (2026-10-09)
+-------------------
+
+The websocket guard, the status route and the adapter lifecycle surface (guard-core-go v4.3.2 floor)
+----------------------------------------------------------------------------------------------------
+
+### Added
+
+- **The websocket handshake guard** (#24): `GuardWebSocket(engine, c)` ports the reference websocket guard onto the Fiber adapter, running the engine's handshake checks over the upgrade request (identity resolution, the fail-secure unknown-address close, the ban probe, the `is_ip_allowed` verdict, the ws rate limit, and the penetration detection pass sharing the HTTP pipeline's suspicious counts). A nil result allows the upgrade; a non-nil reason closes it; a nil engine fails closed with the security-check-failed reason. `WebSocketHTTPStatus` maps a close reason onto the HTTP status an upgrade rejection carries (503 try-again-later, 403 policy violation), and the ws request shim mirrors the reference `_WebSocketGuardRequest` (method WEBSOCKET, empty body, repeated headers joined with a comma, fresh request state).
+- **The reference status route** (#25): `AddStatusRoute(app, engine, path)` registers a GET handler serving the engine's initialization snapshot JSON (cloud_providers ready/last_refreshed/entries per provider, geo_ip null or the configured resolver's status, redis enabled plus a live O(1) probe with the failure string) at `DefaultStatusPath` (`/_guard/status`) by default, never mutating engine state, the sibling adapters' `AddStatusRoute` over Fiber's router.
+- **The adapter lifecycle surface** (#26): the fastapi-guard middleware lifecycle ops (the FEATURE_MATRIX_GO adapter row's PARTIAL/MISSING entries) as explicit functions over the engine handle (the same seam as `GuardWebSocket` and `AddStatusRoute`): `MarkInitialized` (a warmed engine makes `Initialize` a no-op), `GetInitializationStatus` (the payload `AddStatusRoute` serves), `Reset` (the rate limiter's windows, redis and in-memory), `AgentStats` (enabled/degraded merged with the wired handler's stats), and `RefreshCloudIPRanges` (the redis-backed refresh at the configured TTL, the reference `cloud_handler.refresh_async`, or the in-memory refresh; no blocked providers is the reference's no-op early return).
+
+### Changed
+
+- **Raised the engine floor to `github.com/rennf93/guard-core-go/v4 v4.3.2`, the adapter-parity release.** The v4.3.2 engine carries the ReDoS static-safety trio with the pattern_safety corpus going registry-free (94/94, 0 divergences), the sus-patterns runtime registry with the `pattern_detected` envelope and real dynamic-rules application, the `custom_response_modifier` response pass (`Engine.ModifyResponse` exposes it to this adapter for pass-through composition), the websocket guard surface `GuardWebSocket` drives with suspicious counts shared with the HTTP pipeline, the fifteen SecurityConfig knobs with the performance-monitor wiring, and the lifecycle/state surface the functions above call (manager exports, `GeoIPManager.IsInitialized`, the cross-instance middleware state registry, the engine side of `MarkInitialized`/`AgentStats`). The floor also brings `redis/go-redis/v9` v9.23.0 transitively, clearing the stdlib-adjacent x/sys exposure; govulncheck stays clean. Everything else flows through the unchanged middleware surface.
+- **Dependency bumps**: `github.com/valyala/fasthttp` to v1.75.0 in the go-modules group (#27), and `golang.org/x/net` pinned at the v0.60.0 explicit indirect floor (#29), clearing the five 2026 http2 findings (GO-2026-6603/6610/6611/6612/6617) reachable through the x/net http2 paths (`FrameType.String`, `Transport.RoundTrip`).
+- **Post-transfer metadata sweep** (1ab85c5): repo URLs, docs links, and ecosystem references point at the Guard-Core org, and the upstream-drift suite checks out `Guard-Core/guard-core-go@master`. Module paths, Go imports, and the CHANGELOG history line are deliberately unchanged.
+
+___
+
 v1.3.0 (2026-10-01)
 -------------------
 
