@@ -1,4 +1,5 @@
 site_name: fiber-guard
+site_url: https://guard-core.github.io/fiber-guard/
 site_description: guard-core-go security middleware for Fiber v3
 site_author: Renn F
 repo_url: https://github.com/Guard-Core/fiber-guard
