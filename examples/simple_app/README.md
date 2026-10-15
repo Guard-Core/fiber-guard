@@ -56,12 +56,7 @@ curl -i http://localhost:8080/
 
 ## A note on address headers
 
-The Python engine skips ssrf scanning for address headers (`host`,
-`x-forwarded-for`, `x-real-ip`, ...) automatically. This Go port does not
-apply that built-in exclusion yet, and the Fiber adapter forwards fasthttp's
-explicit `Host` header, so `main.go` mirrors the exclusion through
-`ExcludedDetectionHeaders`; without it, a plain `Host: localhost` request is
-flagged as an ssrf attempt.
+The engine skips ssrf scanning for address headers (`host`, `x-forwarded-for`, `x-real-ip`, ...) through its built-in default set (`guardcore.DefaultExcludedHeaders`), as the reference does, so a plain `Host: localhost` request is not flagged and `main.go` needs no `ExcludedDetectionHeaders` entry. That field only adds names on top of the default.
 
 ## Configuration knobs demonstrated
 
@@ -78,9 +73,7 @@ Inline comments in `main.go` walk through every knob used:
 - Redis via `REDIS_URL` / `REDIS_PREFIX` (compose wires Redis in; without it
   the managers fall back to in-process state)
 - The `OnBlock` hook: the telemetry seam for wiring
-  [guard-agent-go](https://github.com/Guard-Core/guard-agent-go) (comment-level
-  guidance in `main.go`; agent integration is not implemented in the engine
-  port yet, and `EnableAgent` fails config validation)
+  [guard-agent-go](https://github.com/Guard-Core/guard-agent-go) (comment-level guidance in `main.go`; `EnableAgent` validates but streams only to a `guardcore.AgentHandler` set in `AgentHandler`, so the example keeps it off)
 
 ## Fiber notes
 

@@ -49,22 +49,12 @@ func New() (*guardcore.SecurityConfig, error) {
 		// Detection: every category, default detector tuning.
 		c.EnablePenetrationDetection = true
 
-		// The Python engine automatically skips ssrf scanning for address
-		// headers (host, x-forwarded-for, x-real-ip, ...). This port does
-		// not apply that built-in exclusion yet, and the Fiber adapter
-		// forwards fasthttp's explicit Host header (see request.go), so
-		// mirror the exclusion here; otherwise a plain "Host: localhost"
-		// request is flagged as ssrf. Excluding these headers only narrows
-		// detection scanning, it does not affect trusted-proxy client IP
-		// resolution.
-		c.ExcludedDetectionHeaders = map[string]bool{
-			"host": true, "origin": true, "via": true,
-			"x-forwarded-for": true, "x-forwarded-host": true,
-			"x-real-ip": true, "x-client-ip": true,
-			"x-cluster-client-ip": true, "cf-connecting-ip": true,
-			"true-client-ip": true, "fly-client-ip": true,
-			"x-envoy-external-address": true,
-		}
+		// Address headers (host, x-forwarded-for, x-real-ip, ...) are already
+		// excluded from detection by the engine's built-in default set
+		// (guardcore.DefaultExcludedHeaders, the reference's
+		// _DEFAULT_EXCLUDED_HEADERS), so a plain "Host: localhost" request is
+		// not flagged and no ExcludedDetectionHeaders entry is needed here.
+		// ExcludedDetectionHeaders only adds names on top of that default.
 
 		// Edge filters.
 		c.BlockedUserAgents = []string{"badbot", "evil-crawler", "sqlmap"}
@@ -86,14 +76,16 @@ func New() (*guardcore.SecurityConfig, error) {
 		c.LogRequestLevel = EnvOr("LOG_REQUEST_LEVEL", "INFO")
 		c.LogSuspiciousLevel = EnvOr("LOG_SUSPICIOUS_LEVEL", "WARNING")
 
-		// Agent wiring (comment-level): guard-core-go's only telemetry seam
-		// is OnBlock. The Go agent (guard-agent-go,
-		// https://github.com/Guard-Core/guard-agent-go) mirrors the Python
-		// guard-agent's API: once its engine-event pipeline accepts these
-		// payloads, replace the log line below with the agent client call
-		// and set AGENT_ENDPOINT/AGENT_PROJECT_ID here. EnableAgent stays
-		// false because the engine fails config validation on it (the
-		// feature is not ported yet); do not turn it on.
+		// OnBlock is the engine's block-event hook (check_name, reason,
+		// trigger_info, passive_mode, client_ip, path, method, status_code).
+		// Agent telemetry rides a different seam: EnableAgent validates, and
+		// the engine streams events and metrics to the guardcore.AgentHandler
+		// set in AgentHandler (SendEvent/SendMetric). Without a handler the
+		// engine logs that the agent cannot initialize and continues without
+		// it (AgentStrict makes NewEngine fail instead), so this example keeps
+		// EnableAgent off and only logs blocks. guard-agent-go takes a
+		// context and its own event types, so it needs a small bridge to
+		// satisfy guardcore.AgentHandler.
 		c.OnBlock = func(req guardcore.Request, payload map[string]any) {
 			log.Printf("guard blocked %s %s from %s via %s: %s",
 				payload["method"], payload["path"], payload["client_ip"],

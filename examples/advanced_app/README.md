@@ -139,8 +139,7 @@ consequences matter when reading this example:
 - Cloud provider blocking (`BlockCloudProviders`, off by default)
 - `OnBlock` hook: the telemetry seam for
   [guard-agent-go](https://github.com/Guard-Core/guard-agent-go) wiring
-  (comment-level guidance in `internal/config/config.go`; `EnableAgent` is
-  fail-closed in this port, so the hook is the integration point)
+  (comment-level guidance in `internal/config/config.go`; `EnableAgent` validates but streams only to a `guardcore.AgentHandler` set in `AgentHandler`, so the example keeps it off and only logs blocks)
 
 ## Intentional simplifications
 

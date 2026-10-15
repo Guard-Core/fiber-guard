@@ -64,14 +64,26 @@ func (m *middleware) wrap(c fiberlib.Ctx) error {
 	// merged on top (the reference _inject_cors_headers runs after the
 	// security-header set, so CORS wins on a shared name) whenever the
 	// request carries an Origin and CORS is enabled.
+	cors := m.engine.CORSResponseHeaders(req)
 	headers := m.engine.ResponseHeaders()
-	for name, value := range m.engine.CORSResponseHeaders(req) {
+	for name, value := range cors {
 		headers[name] = value
 	}
 	for name, value := range headers {
 		c.Set(name, value)
 	}
 	err = c.Next()
+	// A handler error (or an unrouted request) is turned into a response by
+	// Fiber's ErrorHandler, which normally runs after the whole middleware
+	// chain returned: c.Response().StatusCode() would still be the
+	// unwritten default and the engine would record a 200. Run the error
+	// handler here, as Fiber's own logger middleware does, so the real
+	// status exists first.
+	if err != nil {
+		if handlerErr := c.App().ErrorHandler(c, err); handlerErr != nil {
+			_ = c.SendStatus(fiberlib.StatusInternalServerError)
+		}
+	}
 	// Behavioral return rules (route and global) run against the response
 	// the handler produced, exactly like the reference response factory's
 	// behavioral phase. Fiber buffers the response, so after the chain runs
@@ -93,7 +105,10 @@ func (m *middleware) wrap(c fiberlib.Ctx) error {
 		Headers:    map[string]string{},
 		Body:       observedBody,
 	})
-	return err
+	if m.engine.Config.CustomResponseModifier != nil {
+		applyModifier(c, m.engine, cors)
+	}
+	return nil
 }
 
 func (m *middleware) check(req guardcore.Request) (verdict *guardcore.Response, err error) {
