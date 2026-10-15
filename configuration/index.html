@@ -382,6 +382,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-response-modifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom response modifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#redis" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -526,6 +537,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-response-modifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom response modifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#redis" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -654,17 +676,9 @@ for the full <code>SecurityConfig</code> surface.</p>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="address-headers">Address headers</h2>
-<p>The Python engine skips ssrf scanning for address headers (<code>host</code>,
-<code>x-forwarded-for</code>, <code>x-real-ip</code>, ...) automatically. The Go engine does not
-apply that built-in exclusion yet, so mirror it explicitly when clients can
-send internal hostnames; the Fiber adapter forwards fasthttp's explicit Host
-header, so <code>host</code> must be in the set:</p>
-<div class="highlight"><pre><span></span><code><span class="nx">cfg</span><span class="p">.</span><span class="nx">ExcludedDetectionHeaders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
-<span class="w">    </span><span class="s">"host"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">"origin"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">"via"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="s">"x-forwarded-for"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">"x-forwarded-host"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="s">"x-real-ip"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">"x-client-ip"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div>
+<p>The engine skips ssrf scanning for address headers (<code>host</code>, <code>x-forwarded-for</code>, <code>x-real-ip</code>, ...) through its built-in default set (<code>guardcore.DefaultExcludedHeaders</code>, the reference's <code>_DEFAULT_EXCLUDED_HEADERS</code>), so no manual exclusion is needed. <code>ExcludedDetectionHeaders</code> only adds names on top of that default.</p>
+<h2 id="custom-response-modifier">Custom response modifier</h2>
+<p><code>cfg.CustomResponseModifier</code> runs on every pass-through response after the security and CORS headers, as the last step of the reference response pass, and CORS headers are applied again after it. Blocked responses already carry it from the engine. With a modifier configured the adapter holds the whole handler response in memory until the handler returns, so a streamed response is delivered at the end instead of incrementally; without one the response is untouched and streams as usual.</p>
 <h2 id="redis">Redis</h2>
 <p>Distributed bans and rate limits require Redis:</p>
 <div class="highlight"><pre><span></span><code><span class="nx">cfg</span><span class="p">.</span><span class="nx">EnableRedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
