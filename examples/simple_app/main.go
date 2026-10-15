@@ -47,22 +47,12 @@ func main() {
 		// Penetration detection: all categories, default thresholds.
 		c.EnablePenetrationDetection = true
 
-		// The Python engine automatically skips ssrf scanning for address
-		// headers (host, x-forwarded-for, x-real-ip, ...). This port does
-		// not apply that built-in exclusion yet, and the Fiber adapter
-		// forwards fasthttp's explicit Host header (see request.go), so
-		// mirror the exclusion here; otherwise a plain "Host: localhost"
-		// request is flagged as ssrf. Excluding these headers only narrows
-		// detection scanning, it does not affect trusted-proxy client IP
-		// resolution.
-		c.ExcludedDetectionHeaders = map[string]bool{
-			"host": true, "origin": true, "via": true,
-			"x-forwarded-for": true, "x-forwarded-host": true,
-			"x-real-ip": true, "x-client-ip": true,
-			"x-cluster-client-ip": true, "cf-connecting-ip": true,
-			"true-client-ip": true, "fly-client-ip": true,
-			"x-envoy-external-address": true,
-		}
+		// Address headers (host, x-forwarded-for, x-real-ip, ...) are already
+		// excluded from detection by the engine's built-in default set
+		// (guardcore.DefaultExcludedHeaders, the reference's
+		// _DEFAULT_EXCLUDED_HEADERS), so a plain "Host: localhost" request is
+		// not flagged and no ExcludedDetectionHeaders entry is needed here.
+		// ExcludedDetectionHeaders only adds names on top of that default.
 
 		// Blocked user agents (regex patterns).
 		c.BlockedUserAgents = []string{"badbot", "evil-crawler", "sqlmap"}
@@ -77,14 +67,16 @@ func main() {
 			"/docs", "/redoc", "/openapi.json", "/favicon.ico", "/static", "/health",
 		}
 
-		// OnBlock is the telemetry seam of this port. Guard Agent
-		// integration is not implemented in guard-core-go yet (setting
-		// EnableAgent fails config validation), so wire the agent from
-		// here: forward these payloads to guard-agent-go
-		// (https://github.com/Guard-Core/guard-agent-go) once its event
-		// pipeline accepts engine events. The payload carries check_name,
-		// reason, trigger_info, passive_mode, client_ip, path, method, and
-		// status_code.
+		// OnBlock is the engine's block-event hook (check_name, reason,
+		// trigger_info, passive_mode, client_ip, path, method, status_code).
+		// Agent telemetry rides a different seam: EnableAgent validates, and
+		// the engine streams events and metrics to the guardcore.AgentHandler
+		// set in AgentHandler (SendEvent/SendMetric). Without a handler the
+		// engine logs that the agent cannot initialize and continues without
+		// it (AgentStrict makes NewEngine fail instead), so this example keeps
+		// EnableAgent off and only logs blocks. guard-agent-go takes a
+		// context and its own event types, so it needs a small bridge to
+		// satisfy guardcore.AgentHandler.
 		c.OnBlock = func(req guardcore.Request, payload map[string]any) {
 			log.Printf("guard blocked %s %s from %s via %s: %s",
 				payload["method"], payload["path"], payload["client_ip"],

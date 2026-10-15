@@ -25,19 +25,11 @@ cfg.CustomErrorResponses = map[int]string{
 
 ## Address headers
 
-The Python engine skips ssrf scanning for address headers (`host`,
-`x-forwarded-for`, `x-real-ip`, ...) automatically. The Go engine does not
-apply that built-in exclusion yet, so mirror it explicitly when clients can
-send internal hostnames; the Fiber adapter forwards fasthttp's explicit Host
-header, so `host` must be in the set:
+The engine skips ssrf scanning for address headers (`host`, `x-forwarded-for`, `x-real-ip`, ...) through its built-in default set (`guardcore.DefaultExcludedHeaders`, the reference's `_DEFAULT_EXCLUDED_HEADERS`), so no manual exclusion is needed. `ExcludedDetectionHeaders` only adds names on top of that default.
 
-```go
-cfg.ExcludedDetectionHeaders = map[string]bool{
-    "host": true, "origin": true, "via": true,
-    "x-forwarded-for": true, "x-forwarded-host": true,
-    "x-real-ip": true, "x-client-ip": true,
-}
-```
+## Custom response modifier
+
+`cfg.CustomResponseModifier` runs on every pass-through response after the security and CORS headers, as the last step of the reference response pass, and CORS headers are applied again after it. Blocked responses already carry it from the engine. With a modifier configured the adapter holds the whole handler response in memory until the handler returns, so a streamed response is delivered at the end instead of incrementally; without one the response is untouched and streams as usual.
 
 ## Redis
 
