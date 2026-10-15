@@ -9,7 +9,7 @@ RUN go mod download
 
 # The adapter package lives at the repository root (package fiber); the example
 # is a second package inside the same module.
-COPY middleware.go request.go ./
+COPY middleware.go modifier.go request.go ./
 COPY examples/simple_app/ examples/simple_app/
 
 RUN CGO_ENABLED=0 go build -trimpath -o /out/simple_app ./examples/simple_app
