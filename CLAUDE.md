@@ -100,7 +100,7 @@ CI runs the test job on a Go matrix of `1.25.x` and `1.26.x` (fail-fast disabled
 ├── LICENSE              # MIT
 └── .github/
     ├── workflows/ci.yml           # push/PR: gofmt, vet, unit, integration, govulncheck
-    ├── workflows/release.yml      # tag push gate: same tests, plus module tag consumable check
+    ├── workflows/release.yml      # tag push gate: requires green CI on the tagged commit, plus module tag consumable check
     ├── workflows/scheduled-lint.yml  # weekly cron vet + govulncheck
     ├── workflows/code-ql.yml      # CodeQL go analysis on push/PR/weekly
     └── dependabot.yml             # weekly gomod and github-actions updates
@@ -139,7 +139,7 @@ CI runs the test job on a Go matrix of `1.25.x` and `1.26.x` (fail-fast disabled
 
 ## Best Practices
 
-- Never push to `main` and never push tags from routine work. A `v*` tag push triggers the Release Gate workflow, which re-runs the full matrix and verifies the module tag resolves from a clean consumer module.
+- Never push to `main` and never push tags from routine work. A `v*` tag push triggers the Release Gate workflow, which requires the push runs of `ci.yml` and `live-smoke.yml` on the tagged commit to have succeeded and verifies the module tag resolves from a clean consumer module. Run it by hand with a `tag` input to re-check an existing tag.
 - Work on a branch, open a PR against `main`, and keep the diff scoped. Do not merge your own PR without review.
 - Do not add a `replace` directive for guard-core-go in a commit; it is consumed as a normal module dependency.
 - Do not commit generated files, `.DS_Store`, or stray artifacts. Stage explicit paths only.
