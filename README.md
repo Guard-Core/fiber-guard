@@ -152,10 +152,10 @@ ___
 
 ## Install
 
-Released: `v1.4.0` on the Go module proxy, flooring the guard-core-go v4.3.2 parity engine:
+Released: `v1.5.0` on the Go module proxy, flooring the guard-core-go v4.4.0 reference-alignment engine:
 
 ```
-go get github.com/rennf93/fiber-guard@v1.4.0 github.com/rennf93/guard-core-go/v4@v4.3.2
+go get github.com/rennf93/fiber-guard@v1.5.0 github.com/rennf93/guard-core-go/v4@v4.4.0
 ```
 
 The package name is `fiber`, which collides with `github.com/gofiber/fiber/v3` (also package `fiber`), so import the adapter with an explicit alias such as `guardfiber`.
