@@ -3,6 +3,24 @@ Release Notes
 
 ___
 
+v1.5.0 (2026-10-16)
+-------------------
+
+The custom response modifier and the guard-core-go v4.4.0 floor (the reference-alignment engine)
+------------------------------------------------------------------------------------------------
+
+### Fixed
+
+- **The `CustomResponseModifier` is applied, and the status handed to the response pass is the real one** (#43): `Engine.ModifyResponse` is applied in the reference order (security headers, CORS, modifier, then CORS again), and the app `ErrorHandler` now runs before the status is read, so handler errors and unrouted requests are recorded as 500 and 404 instead of the unwritten default 200. With a modifier configured the adapter rewrites the buffered fasthttp response after the chain; without one nothing changes.
+
+### Changed
+
+- **Raised the engine floor to `github.com/rennf93/guard-core-go/v4 v4.4.0`, the reference-alignment release.** The v4.4.0 engine adds the per-request scan time budget (`Detection.MaxScanSeconds`, `pattern_timeout`), honors `Detection.ThreatScoreThreshold`, canonicalizes client identity (IPv4-mapped addresses, brackets, zones), follows the reference IP list precedence, answers an unresolved client address with 403 under `FailSecure`, applies dynamic rule versions over the base config, fixes the filtered-value scan bypass (GHSA-w9j2-2m3v-5hcc) and scans the Cookie header one pair at a time. No adapter code change was needed: the full gate (gofmt, vet, staticcheck, unit and integration tests with Redis, the 100% coverage gate, govulncheck) is green on the new floor.
+- **Behavior to know before upgrading.** The v4.4.0 engine changes what some requests get, and this adapter passes it straight through. A request that reaches the engine with an empty remote address is now answered 403 `Client address could not be determined` under `FailSecure` (the adapter always hands over the connection's remote address, so only a server that leaves it empty is affected). IPv4 blacklist, whitelist, exempt and emergency entries now also match clients that connect as `::ffff:a.b.c.d`, and an IPv4 CIDR no longer trusts a mapped peer as a proxy. A configured whitelist now decides alone (a route whitelist overrides the route blacklist and skips the global lists, a global whitelist overrides the global blacklist), so an entry that relied on the blacklist beating the whitelist must move. A dynamic rule version no longer stacks on the previous one, so a field a version does not set returns to the base value. A request that spends `Detection.MaxScanSeconds` (default 10.0) of regex CPU time is blocked with a `pattern_timeout` threat, and a set `Detection.ThreatScoreThreshold` now changes verdicts. A passive-mode log match on the old penetration wording needs updating.
+- **Docs and CI**: the examples and docs no longer claim the default address headers need a manual `ExcludedDetectionHeaders` entry or that `EnableAgent` fails validation (both verified against the engine), the weekly lint runs on Go 1.26.x, `codeql-action` moves to 4.38.3, the docs links and mkdocs `site_url` point at the live site root, and the README gets the content-parity pass.
+
+___
+
 v1.4.0 (2026-10-09)
 -------------------
 
